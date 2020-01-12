@@ -79,14 +79,14 @@ class build_json:
                 zipfile.write(filename)
 
     def push_to_github(self):
-        try:
-            repo = Repo(os.path.dirname(os.getcwd()))
-            repo.git.add(update=True)
-            repo.index.commit("New Package!")
-            origin = repo.remote(name = 'origin')
-            origin.push()
-        except:
-            print("The Github push failed!")
+        repo = Repo(os.path.dirname(os.getcwd()))
+
+        with repo.config_reader():
+            pass
+        repo.git.add(update=True)
+        repo.index.commit("New Package!")
+        origin = repo.remote(name = 'origin')
+        origin.push()
 
 topic = "actresses"
 
