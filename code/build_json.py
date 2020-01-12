@@ -29,12 +29,14 @@ class build_json:
             "aspect_ratio" : "square",
             "image_directory" : self.topic
             }
-        paths = self.res.download(args)
-        print(paths)
-        if paths[0][person["title"]]:
-            filepath = paths[0][person["title"]][0]
-            return filepath[filepath.rindex("/") + 1:]
-        else:
+        try:
+            paths = self.res.download(args)
+            if paths[0][person["title"]]:
+                filepath = paths[0][person["title"]][0]
+                return filepath[filepath.rindex("/") + 1:]
+            else:
+                return False
+        except:
             return False
 
     def build_json(self):
@@ -57,7 +59,7 @@ class build_json:
             f.write(json.dumps(images))
         f.close()
     
-    def get_filepaths(directory):
+    def get_filepaths(self, directory):
         
         filepaths = []
         for root, directories, files in os.walk(directory):
@@ -70,9 +72,9 @@ class build_json:
     def zip_downloaded_images(self):
         directory = "./downloads/" + self.topic
 
-        filepaths = get_filepaths(directory)
+        filepaths = self.get_filepaths(directory)
 
-        with ZipFile(f"packages/{self.topic}.zip", "w") as zipfile:
+        with ZipFile(os.path.dirname(os.getcwd()) + "/packages/{}.zip".format(self.topic), "w") as zipfile:
             for filename in filepaths:
                 zipfile.write(filename)
 
@@ -85,9 +87,10 @@ class build_json:
             origin.push()
         except:
             print("The Github push failed!")
-    
 
-build_json = build_json("actresses")
+topic = "actresses"
+
+build_json = build_json(topic)
 # build_json.build_json()
 # build_json.zip_downloaded_images()
-build_json.upload_to_github()
+build_json.push_to_github()
