@@ -81,7 +81,7 @@ class build_json:
     def push_to_github(self):
         repo = Repo(os.path.dirname(os.getcwd()))
 
-        with repo.config_reader():
+        with repo.config_writer():
             pass
         repo.git.add(update=True)
         repo.index.commit("New Package!")
