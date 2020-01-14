@@ -1,4 +1,5 @@
 from wiki_scraper import wiki_scraper
+from gitHandler import gitHub
 
 import wikipedia
 from zipfile import ZipFile
@@ -19,10 +20,10 @@ class build_json:
         
         self.wiki.loadData("Category:21st-century_American_actresses")
         self.data.extend(self.wiki.wiki_data)
+
+        self.gitHandler = gitHub("https://github.com/dhrumilp15/quiqui_imgs.git")
         
-        self.topic = topic
-        
-        self.clone_imgs()
+        self.topic = topic        
     
     def getImageLink(self, names, index):
         session = requests.session()
@@ -101,14 +102,6 @@ class build_json:
                 filepaths.append(filename)
         return filepaths
     
-    def clone_imgs(self):
-        cloneUrl = "https://github.com/dhrumilp15/quiqui_imgs.git"
-        localRepopath = os.path.dirname(os.getcwd())
-        if os.path.exists(os.path.join(os.path.dirname(os.getcwd()), "quiqui_imgs")):
-            self.repo = Repo.init(os.path.join(os.path.dirname(os.getcwd()), "quiqui_imgs/.git"))
-        else:
-            self.repo = Repo.clone_from(cloneUrl, os.path.join(os.path.dirname(os.getcwd()), "quiqui_imgs"), branch = "master")
-    
     def zip_downloaded_images(self):
         directory = "./downloads/" + self.topic
 
@@ -119,14 +112,6 @@ class build_json:
         with ZipFile(os.path.dirname(workingdir) + "/quiqui_imgs/{}.zip".format(self.topic), "w") as zipfile:
             for filename in filepaths:
                 zipfile.write(filename)
-    
-    def push_to_github(self):
-        # self.repo.git.add(update=True)
-        self.repo.git.add(".")
-        self.repo.index.commit("New Package!")
-        origin = self.repo.remote("origin")
-        origin.pull()
-        origin.push()
 
 if __name__ == "__main__":
     topic = "actresses"
@@ -134,4 +119,4 @@ if __name__ == "__main__":
     jsonobj.processing()
     jsonobj.download()
     jsonobj.zip_downloaded_images()
-    jsonobj.push_to_github()
+    jsonobj.gitHandler.push_to_github()
