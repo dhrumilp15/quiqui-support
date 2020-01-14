@@ -1,2 +1,3 @@
 from wiki_scraper import wiki_scraper
 from info_handler import info_handler
+from gitHandler import gitHandler
