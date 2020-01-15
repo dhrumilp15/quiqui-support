@@ -21,7 +21,7 @@ class wiki_scraper(info_handler):
     def __init__(self):
         self.wiki_data = []
     
-    def loadData(self, link = None):
+    def loadData(self, link : str = None):
         super()
 
         session = requests.Session()
@@ -52,7 +52,7 @@ class wiki_scraper(info_handler):
             data = res.json()
             self.parseData(data)
     
-    def parseData(self, data, **kwargs):
+    def parseData(self, data : dict, **kwargs):
         super()
         info = data["query"]["categorymembers"]
         for person in info:

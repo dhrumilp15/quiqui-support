@@ -1,8 +1,10 @@
+#!usr/bin/env python3
+
 from git import Repo
 import os
 
 class gitHub:
-    def __init__(self, link):
+    def __init__(self, link : str):
         cloneUrl = os.path.basename(link)[0:-4]
         localRepopath = os.path.dirname(os.getcwd())
         if os.path.exists(os.path.join(os.path.dirname(os.getcwd()), cloneUrl)):
