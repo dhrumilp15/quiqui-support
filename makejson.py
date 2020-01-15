@@ -1,3 +1,4 @@
+#!usr/bin/env python3
 from wiki_scraper import wiki_scraper
 from gitHandler import gitHub
 
@@ -11,7 +12,7 @@ import requests
 import time
 
 class build_json:
-    def __init__(self, topic):
+    def __init__(self, topic : str):
         # Combine 20th and 21st century actress lists
         self.wiki = wiki_scraper()
 
@@ -20,12 +21,11 @@ class build_json:
         
         self.wiki.loadData("Category:21st-century_American_actresses")
         self.data.extend(self.wiki.wiki_data)
-
-        self.gitHandler = gitHub("https://github.com/dhrumilp15/quiqui_imgs.git")
         
         self.topic = topic        
     
-    def getImageLink(self, names, index):
+    # Make a request to the MediaWiki Api to get the first image link on the wiki page
+    def getImageLink(self, names : str, index: int):
         session = requests.session()
 
         url = "https://en.wikipedia.org/w/api.php"
@@ -52,6 +52,7 @@ class build_json:
         with open("imageLinks{}.json".format(index), "w") as f:
             f.write(json.dumps(links))
     
+    # To split up work into 4 cores for reduced time
     def processing(self):
         names = [person["title"] for person in self.data]
         processes = []
@@ -62,6 +63,8 @@ class build_json:
         for process in processes:
             process.join()
 
+
+    # Build and write the json to images.json
     def download(self):
         print(len(self.data))
         images = {
@@ -93,8 +96,9 @@ class build_json:
 
         with open("downloads/{}/images.json".format(self.topic), "w") as f:
             f.write(json.dumps(images))
-
-    def get_filepaths(self, directory):
+    
+    # Helper function to get all file names in a directory
+    def get_filepaths(self, directory : str) -> list:
         
         filepaths = []
         for root, directories, files in os.walk(directory):
@@ -102,21 +106,28 @@ class build_json:
                 filepaths.append(filename)
         return filepaths
     
+    # Zip the images to the quiqui_imgs repo
     def zip_downloaded_images(self):
         directory = "./downloads/" + self.topic
 
         filepaths = self.get_filepaths(directory)
         workingdir = os.getcwd()
-        print(workingdir)
-        os.chdir(workingdir + "/downloads/{}".format(self.topic))
-        with ZipFile(os.path.dirname(workingdir) + "/quiqui_imgs/{}.zip".format(self.topic), "w") as zipfile:
+        # print(workingdir)
+        os.chdir(workingdir + f"/downloads/{self.topic}")
+        with ZipFile(workingdir + f"/quiqui_imgs/{self.topic}.zip", "w") as zipfile:
             for filename in filepaths:
                 zipfile.write(filename)
 
+# Just run this code if this file is executed
 if __name__ == "__main__":
     topic = "actresses"
+
+    # Build the json    
     jsonobj = build_json(topic)
     jsonobj.processing()
     jsonobj.download()
     jsonobj.zip_downloaded_images()
-    jsonobj.gitHandler.push_to_github()
+    
+    # Push to github
+    gitHandler = gitHub("https://github.com/dhrumilp15/quiqui_imgs.git")
+    gitHandler.push_to_github()
